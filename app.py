@@ -15,10 +15,18 @@ def writeFileList(results):
             lr.write('\n')
 
 
+def readFileList():
+    fileset = set()
+    with open('./lastrun.txt', 'r') as lr:
+        for line in lr:
+            fileset.add(line.strip('\n'))
+
+    return fileset
+
+
 def job():
 
     lbc.searchFor("sonos connect")
-    lbc.setLimit(10)
     lbc.maxPrice(300)
     results = lbc.execute()
     resultset = set()
@@ -28,9 +36,8 @@ def job():
         resultset.add(ad['url'])
 
     if os.path.isfile('./lastrun.txt'):
-        with open('./lastrun.txt', 'r') as lr:
-            for line in lr:
-                lastrunset.add(line.strip('\n'))
+
+        lastrunset = readFileList()
 
         for newAdd in resultset - lastrunset:
             webbrowser.get('chromium').open_new_tab(newAdd)
@@ -40,6 +47,7 @@ def job():
 
 
 schedule.every(5).minutes.do(job)
+job()
 
 while True:
     schedule.run_pending()
